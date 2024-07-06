@@ -29,3 +29,13 @@ for image_class in os.listdir(data_dir):
 data = tf.keras.utils.image_dataset_from_directory('data')
 data_iterator = data.as_numpy_iterator()   
 
+batch = data_iterator.next()
+
+fig, ax = plt.subplots(ncols=4, figsize=(20,20))
+for idx, img in enumerate(batch[0][:4]):
+    ax[idx].imshow(img)
+    ax[idx].title.set_text(batch[1][idx])
+
+data = data.map(lambda x,y: (x/255, y))
+data.as_numpy_iterator().next()
+
