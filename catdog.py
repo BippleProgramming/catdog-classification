@@ -67,4 +67,4 @@ model.add(Dense(1, activation='sigmoid'))
 
 model.compile('adam', loss=tf.losses.BinaryCrossentropy(), metrics=['accuracy'])
 
-model.summary()
+model.summary() #summary
