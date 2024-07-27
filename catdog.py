@@ -12,7 +12,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropou
 #     tf.config.experimental.set_memory_growth(gpu, True)
 
 # accessing folder named data and getting all those file extensions
-data_dir = 'data' 
+data_dir = 'catdog-classification/data' 
 image_exts = ['jpeg','jpg', 'bmp', 'png']
 
 # goes through happy then sad
@@ -30,7 +30,7 @@ for image_class in os.listdir(data_dir):
             print('Issue with image {}'.format(image_path))
             os.remove(image_path)
 
-data = tf.keras.utils.image_dataset_from_directory('data') # gets all data
+data = tf.keras.utils.image_dataset_from_directory(data_dir) # gets all data
 data_iterator = data.as_numpy_iterator() # allows us to use numpy functions
 
 batch = data_iterator.next() # getting batch size 32 (default)
@@ -44,9 +44,9 @@ data = data.map(lambda x,y: (x/255, y)) # goes from 0-1 to 0-255 for format purp
 # data.as_numpy_iterator().next() 
 
 # splitting batch into chunks
-train_size = int(len(data)*.7) # 70%
-val_size = int(len(data)*.2) # 20%
-test_size = int(len(data)*.1) # 10%
+train_size = int(len(data)*.7) # 70%, training data 
+val_size = int(len(data)*.2) # 20%, practice test to ensure it doesn't overfit
+test_size = int(len(data)*.1) # 10%, actual test
 
 # takes those chunks
 train = data.take(train_size)
@@ -68,3 +68,28 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile('adam', loss=tf.losses.BinaryCrossentropy(), metrics=['accuracy'])
 
 model.summary() #summary
+
+logdir='catdog-classification/logs' # setting the folder logs to directory 
+
+# using the function tensorboard to make the directory we created as the parameter
+# creating a place to store and create logs
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir) 
+
+# trains model 20 times and creates history
+hist = model.fit(train, epochs=20, validation_data=val, callbacks=[tensorboard_callback]) 
+
+# plots loss and val loss graph
+fig = plt.figure()
+plt.plot(hist.history['loss'], color='teal', label='loss')
+plt.plot(hist.history['val_loss'], color='orange', label='val_loss')
+fig.suptitle('Loss', fontsize=20)
+plt.legend(loc="upper left")
+plt.show()
+
+# plots accuracy and val accuracy graph
+fig = plt.figure()
+plt.plot(hist.history['accuracy'], color='teal', label='accuracy')
+plt.plot(hist.history['val_accuracy'], color='orange', label='val_accuracy')
+fig.suptitle('Accuracy', fontsize=20)
+plt.legend(loc="upper left")
+plt.show()
